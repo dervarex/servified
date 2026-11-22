@@ -1,21 +1,52 @@
+
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.Base64;
 
 /**
  * This is a simple program that listens on port 25565 and tells us what minecraft wants to tell us, but readable <br>
- * When you connect to "localhost" in minecraft, it'll print a few things, they come from minecraft :)
+ * When you connect to "localhost" in minecraft, it'll print a few things, they come from minecraft :) <br>
  * Additionally, it'll send information to your game client, like the online player count or a motd
  */
 public class ByteServer {
 
-    static final String STATUS_JSON = """
-        {
-          "version": { "name": "servified", "protocol": 777 },
-          "players": { "max": 20, "online": 0 },
-          "description": { "text": "hii from servified!" }
-        }
-        """;
+    static String STATUS_JSON;
+
+    static void loadStatus() throws Exception {
+        byte[] icon = Files.readAllBytes(
+                Path.of(ByteServer.class.getProtectionDomain()
+                                .getCodeSource().getLocation().toURI())
+                        .resolve("server-icon.png")
+        );
+
+        String base64 = Base64.getEncoder().encodeToString(icon);
+
+        STATUS_JSON = """
+            {
+              "version": { "name": "servified", "protocol": 777 },
+              "players": {
+                "max": 20,
+                "online": 0,
+                "sample": [
+                  {
+                    "name": "dervarex",
+                    "id": "a31ccf30-00e4-4928-a590-e366c90af710"
+                  }1
+                ]
+              },
+              "description": {
+                "text": "servified",
+                "color": "gold",
+                "extra": [
+                  { "text": " • not normal", "color": "gray" }
+                ]
+              },
+              "favicon": "data:image/png;base64,%s"
+            }
+            """.formatted(base64);
+    }
 
     static int readVarInt(InputStream in) throws IOException {
         int result = 0;
@@ -187,7 +218,9 @@ public class ByteServer {
         System.out.println("Client disconnected.");
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
+        loadStatus();
+
         try (ServerSocket server = new ServerSocket(25565)) {
             System.out.println("Listening on port 25565...");
 
