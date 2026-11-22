@@ -90,3 +90,23 @@ We can send an object with multiple components:
 - text – the actual text
 - color – the color of the text
 - extra – additional components appended after it
+
+## Responding to Minecraft
+
+After we get the handshake, we check `nextState`.
+
+If `nextState` is 1, we enter STATUS state and wait for packages.
+
+We have two important packages:
+
+### Status Request (0x00)
+
+Empty package. When we recive it, we respond with a Status Response.
+
+The response contains out JSON as a Minecraft string, just like the other strings we had, it starts with a VarInt containing the byte length followed by the actual data.
+
+### Ping Request (0x01)
+
+This packet contains a single 64-bit integer (long).
+
+We read it using DataInputStream.readLong() and send back the exact same value, so the client knows we're alive and can measure the response time to calculate the ping.
