@@ -65,3 +65,28 @@ The client uses the ping and pong round trip to measure the ping bars in the ser
 - If protocol matches the clients protocol, the version looks normal, otherwise the client shows it as incompatible. Sending a wrong one on purpose is funny xD
 - version.name is the text shown in red  in that case, so it can be anything you want, no matter if that's actually a minecraft version
 
+## Customizing the server list entry
+The status response also contains all the information displayed in the multiplayer menu, so we have a few things here that we can customize:
+
+- version.name - version text displayed by minecraft
+- version.protocol - the protocol version minecraft compares against its own. If it doesn't match, the server will be shown as incompatible
+- players.max - the displayed maximum player count
+- players.online - how many players currently are online
+- players.sample - an optional list of players displayed when hovering over the player count (doesn't need to be who actually is on there)
+- description - the server's MOTD, supports formatting, colors and text components
+
+## Server icon
+
+Minecraft also supports a custom server icon.
+
+It expects a PNG image that is exactly 64x64 pixels, encoded as base64 and prefixed with `data:image/png;base64,`
+
+Instead of re-encoding that everytime someone pings your server (trust me, that does matter once some people have you in their server list), we're encoding the image once and including it in the status JSON from then on.
+
+## Colored MOTD
+
+We can send an object with multiple components:
+
+- text - the actual text
+- color - the color of the text
+- extra - additional components appended after it
