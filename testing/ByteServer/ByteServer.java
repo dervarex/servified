@@ -33,7 +33,7 @@ public class ByteServer {
                   {
                     "name": "dervarex",
                     "id": "a31ccf30-00e4-4928-a590-e366c90af710"
-                  }1
+                  }
                 ]
               },
               "description": {
