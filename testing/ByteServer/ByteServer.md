@@ -42,3 +42,26 @@ A3 1C CF 30 00 E4 49 28 A5 90 E3 66 C9 0A F7 10
 =
 a31ccf30-00e4-4928-a590-e366c90af710
 
+
+## The status exchange
+
+After a handshake with nextState=1, the connection is in the STATUS state:
+| Direction | ID | Packet | Contents   |
+|---------------|----|-----------------|-------------|
+| client -> you | 0x00 | Status Request | nothing (empty) |
+| you -> client| 0x00 | Status Response| one string with json |
+| client -> you | 0x01| Ping Request| one long|
+| you -> client| 0x01| Ping Response   | same long, sent back|
+
+The client uses the ping and pong round trip to measure the ping bars in the server list:
+
+```
+{
+  "version": { "name": "servified", "protocol": 777 },
+  "players": { "max": 20, "online": 0 },
+  "description": { "text": "hii from servified!" }
+}
+```
+- If protocol matches the clients protocol, the version looks normal, otherwise the client shows it as incompatible. Sending a wrong one on purpose is funny xD
+- version.name is the text shown in red  in that case, so it can be anything you want, no matter if that's actually a minecraft version
+
