@@ -132,6 +132,30 @@ public class ByteServer {
         System.out.println("Sent Ping Response: " + timestamp);
     }
 
+    // Known Packs (0x0F)
+    static void sendKnownPacks(OutputStream out) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        writeVarInt(buffer, 0x0F);
+
+        writeVarInt(buffer, 1);
+
+        writeString(buffer, "minecraft");
+        writeString(buffer, "core");
+        writeString(buffer, "26.3");
+
+        sendPacket(out, buffer.toByteArray());
+
+        System.out.println("Sent Known Packs: minecraft:core (26.3)");
+    }
+
+    static void writeString(OutputStream out, String value) throws IOException {
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+
+        writeVarInt(out, bytes.length);
+        out.write(bytes);
+    }
+
     enum State { HANDSHAKE, STATUS, LOGIN, CONFIGURATION, PLAY }
 
     /** Everything we know about a connected client */
@@ -280,6 +304,8 @@ public class ByteServer {
 
                 System.out.println("Login Acknowledged");
                 System.out.println("Switched to CONFIGURATION");
+
+                sendKnownPacks(conn.out);
             }
 
             default -> logUnknown(conn, packetId);
@@ -288,6 +314,24 @@ public class ByteServer {
 
     static void handleConfiguration(Connection conn, int packetId, DataInputStream packet) throws IOException {
         switch (packetId) {
+            case 0x07 -> {
+                // Known Packs (serverbound)
+                int count = readVarInt(packet);
+
+                System.out.println("Received Known Packs (" + count + "):");
+
+                for (int i = 0; i < count; i++) {
+                    String namespace = readString(packet);
+                    String id = readString(packet);
+                    String version = readString(packet);
+
+                    System.out.printf(
+                            "  %s:%s (version %s)%n",
+                            namespace, id, version
+                    );
+                }
+            }
+
             default -> logUnknown(conn, packetId);
         }
     }
