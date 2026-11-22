@@ -248,24 +248,38 @@ public class ByteServer {
                 System.out.println("  Username: " + username);
                 System.out.println("  UUID: " + uuid);
 
-                // Login Disconnect
-                String reason = """
-                    {"text":"This server isn't finished yet lol"}
-                    """.trim();
-
+                // Login Success (0x02)
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                DataOutputStream data = new DataOutputStream(buffer);
 
-                writeVarInt(buffer, 0x00);
+                writeVarInt(data, 0x02);
 
-                byte[] json = reason.getBytes(StandardCharsets.UTF_8);
-                writeVarInt(buffer, json.length);
-                buffer.write(json);
+                // Game Profile
+                data.writeLong(uuid.getMostSignificantBits());
+                data.writeLong(uuid.getLeastSignificantBits());
+
+                byte[] name = username.getBytes(StandardCharsets.UTF_8);
+                writeVarInt(data, name.length);
+                data.write(name);
+
+                // Properties: empty array
+                writeVarInt(data, 0);
+
+                // Session ID
+                data.writeLong(0);
+                data.writeLong(0);
 
                 sendPacket(conn.out, buffer.toByteArray());
 
-                System.out.println("Kicked " + username + ": " + reason);
+                System.out.println("Sent Login Success to " + username);
+            }
 
-                conn.socket.close();
+            case 0x03 -> {
+                // Login Acknowledged
+                conn.state = State.CONFIGURATION;
+
+                System.out.println("Login Acknowledged");
+                System.out.println("Switched to CONFIGURATION");
             }
 
             default -> logUnknown(conn, packetId);
