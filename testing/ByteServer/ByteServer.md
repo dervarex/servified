@@ -124,3 +124,21 @@ The server then switches the connection state to CONFIGURATION.
 ## Configuration
 
 The client now starts sending configuration packets, such as Client Information and the minecraft:brand plugin message
+
+## Known Packs
+
+After Login was acknowledged, the server sends a Known Packs packet 0x0F.
+
+This tells the client which data packs the server already knows about.
+Send:
+
+- Namespace: `minecraft`
+- ID: `core`
+- Version: `26.3`
+
+The client then responds with its own Known Packs packet (`0x07`), containing the packs it supports, we can compare that.
+
+**Why??**
+
+If both the server and client have `minecraft:core`, we can skip sending the registry data later, saves bandwidth and makes it easier for both.
+We can send registry entries with `Has Data = false`, telling the client to use its own built-in data instead of downloading all assets.
