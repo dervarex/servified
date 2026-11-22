@@ -110,3 +110,17 @@ The response contains out JSON as a Minecraft string, just like the other string
 This packet contains a single 64-bit integer (long).
 
 We read it using DataInputStream.readLong() and send back the exact same value, so the client knows we're alive and can measure the response time to calculate the ping.
+
+## Login Success
+
+Once the player sends Login Start, the server responds with a Login Success packet (0x02)
+
+That tells Minecraft that the player has successfully logged in. The packet contains the player's UUID, username, an empty properties array and a Session ID.
+
+After reciving Login Success, the client sends Login Acknowledged (0x03), configming that it's ready to continue.
+
+The server then switches the connection state to CONFIGURATION.
+
+## Configuration
+
+The client now starts sending configuration packets, such as Client Information and the minecraft:brand plugin message
