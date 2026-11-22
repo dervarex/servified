@@ -68,12 +68,12 @@ The client uses the ping and pong round trip to measure the ping bars in the ser
 ## Customizing the server list entry
 The status response also contains all the information displayed in the multiplayer menu, so we have a few things here that we can customize:
 
-- version.name - version text displayed by minecraft
-- version.protocol - the protocol version minecraft compares against its own. If it doesn't match, the server will be shown as incompatible
-- players.max - the displayed maximum player count
-- players.online - how many players currently are online
-- players.sample - an optional list of players displayed when hovering over the player count (doesn't need to be who actually is on there)
-- description - the server's MOTD, supports formatting, colors and text components
+- version.name – version text displayed by minecraft
+- version.protocol – the protocol version minecraft compares against its own. If it doesn't match, the server will be shown as incompatible
+- players.max – the displayed maximum player count
+- players.online – how many players currently are online
+- players.sample – an optional list of players displayed when hovering over the player count (doesn't need to be who actually is on there)
+- description – the server's MOTD, supports formatting, colors and text components
 
 ## Server icon
 
@@ -87,6 +87,6 @@ Instead of re-encoding that everytime someone pings your server (trust me, that 
 
 We can send an object with multiple components:
 
-- text - the actual text
-- color - the color of the text
-- extra - additional components appended after it
+- text – the actual text
+- color – the color of the text
+- extra – additional components appended after it
