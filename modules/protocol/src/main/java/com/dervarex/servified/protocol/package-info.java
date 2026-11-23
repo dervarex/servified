@@ -69,5 +69,40 @@
  *     </tr>
  *   </tbody>
  * </table>
+ *
+ * - Since the packet is already in memory, reading won't block you
+ * - If you read further than the end you'll get a ProtocolException
+ * - remaining() tells you how many bytes are left, for example if you're not sure whether you read everything
+ *<br>
+ * <b>Sending: {@code Connection.send}</b>
+ * {@snippet :
+ * conn.send(0x02, out -> out
+ *         .writeUUID(uuid)
+ *         .writeString(name)
+ *         .writeVarInt(0));
+ * }
+ * ^ this is thread safe
+ * <br><br>
+ * <b>Changing State</b> <br><br>
+ * {@code conn.setState(State.X)}<br>
+ * You decide when this happens, in your handler, exactly at the point the protocol says so: <br>
+ * - the handshake's next state -> STATUS or LOGIN <br>
+ * - Login Acknowledged -> CONFIGURATION <br>
+ * - Acknowledge Finish Configuration -> PLAY <br>
+ * <br>
+ * If you forget it, the next packets end up in the wrong state's handlers, the "Unhandled ..." log usually should tell you.
+ * <br><br>
+ * <b>Hooks</b>
+ * {@snippet :
+ * server.onConnect(conn -> ...);
+ * server.onDisconnect(conn -> ...);
+ * server.onUnhandled((conn, id, in) -> ...);  // default: prints "Unhandled LOGIN packet: 0x00 (25 bytes)"
+ * }
+ * <br><br>
+ * <b>Automatic Handling</b>
+ * - Legacy ping: if the first byte of a connection is 0xFE (the old server list ping from 1.6, which modern clients send as a fallback to check if the server speaks the old protocol), the connection gets closed. <br>
+ * - Packet size limits: packets longer than 2,097,151 bytes, or with a length of 0, are rejected (something must have went wrong there) <br>
+ * - Broken data: a VarInt that's too long, a string over its limit, or a packet that ends early throws a ProtocolException, which gets logged, and the connection is closed. <br>
+ * - Threads: every client gets its own virtual thread, so handlers can simply block (file I/O and so on) without slowing down other players. Not really faster than vanilla but it works<br>
  */
 package com.dervarex.servified.protocol;
