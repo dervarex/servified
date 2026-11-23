@@ -4,5 +4,6 @@ plugins {
 
 dependencies {
     implementation(project(":utils"))
+    implementation(project(":protocol"))
     implementation("io.github.dervarex.minified:minified-utils:4.1.0")
 }
