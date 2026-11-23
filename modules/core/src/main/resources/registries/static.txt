@@ -1,0 +1,7 @@
+block
+item
+fluid
+entity_type
+game_event
+point_of_interest_type
+potion

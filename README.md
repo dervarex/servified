@@ -34,4 +34,4 @@ See the LICENSE file for details.
 # Disclaimer
 
 This project is not an official Minecraft service and is not approved by or associated with Mojang or Microsoft.
-No Minecraft assets are downloaded or used in this Project.
+No Minecraft code or assets (textures, sounds, models, ...) are included in the project. The only thing taken from the game are the names of registry entries and tags in modules/core/src/main/resources, which the client needs to be able to join. See scripts/generate-data.py for how it works.
