@@ -2,6 +2,7 @@ package com.dervarex.servified.protocol;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.UUID;
 
 /**
@@ -98,6 +99,12 @@ public final class PacketOutput {
 
     public PacketOutput writeUUID(UUID value) {
         return writeLong(value.getMostSignificantBits()).writeLong(value.getLeastSignificantBits());
+    }
+
+    /** Since 26.x it's a byte array (length + BitSet.toByteArray()), it used to be a long array, thanks mojang, seems like I have to refresh my memory */
+    public PacketOutput writeBitSet(BitSet value) {
+        byte[] bytes = value.toByteArray();
+        return writeVarInt(bytes.length).writeBytes(bytes);
     }
 
     public PacketOutput writeBytes(byte[] bytes) {
