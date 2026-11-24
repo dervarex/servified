@@ -1,6 +1,7 @@
 package com.dervarex.servified.handler;
 
 import com.dervarex.servified.player.Player;
+import com.dervarex.servified.player.PlayerSync;
 import com.dervarex.servified.player.Players;
 import com.dervarex.servified.protocol.Connection;
 import com.dervarex.servified.protocol.PacketInput;
@@ -22,6 +23,7 @@ public final class MovementHandler {
             Player player = player(players, conn);
             player.setPosition(in.readDouble(), in.readDouble(), in.readDouble());
             flags(player, in);
+            PlayerSync.move(player, players);
         });
 
         // Move Player Pos Rot: x, y, z, yaw, pitch, flags
@@ -30,6 +32,7 @@ public final class MovementHandler {
             player.setPosition(in.readDouble(), in.readDouble(), in.readDouble());
             player.setRotation(in.readFloat(), in.readFloat());
             flags(player, in);
+            PlayerSync.move(player, players);
         });
 
         // Move Player Rot: yaw, pitch, flags
@@ -37,6 +40,7 @@ public final class MovementHandler {
             Player player = player(players, conn);
             player.setRotation(in.readFloat(), in.readFloat());
             flags(player, in);
+            PlayerSync.move(player, players);
         });
 
         // Move Player Status Only: just the flags

@@ -1,6 +1,7 @@
 package com.dervarex.servified.handler;
 
 import com.dervarex.servified.player.Player;
+import com.dervarex.servified.player.PlayerSync;
 import com.dervarex.servified.player.Players;
 import com.dervarex.servified.protocol.Connection;
 import com.dervarex.servified.protocol.PacketServer;
@@ -29,8 +30,11 @@ public final class PlayHandler {
             conn.setState(State.PLAY);
             System.out.println("Switched to PLAY mode");
 
-            sendLogin(conn, dimensionType);
-            spawn(players.get(conn), chunk);
+            Player player = players.get(conn);
+
+            sendLogin(player, dimensionType);
+            spawn(player, chunk);
+            PlayerSync.join(player, players);
             startKeepAlive(conn);
         });
 
@@ -39,6 +43,13 @@ public final class PlayHandler {
 
         // Player Loaded, the loading screen is gone
         server.on(State.PLAY, 0x2C, (conn, in) -> System.out.println("Player loaded, we're in the world :)")); // or atleast we should be :(
+
+        server.on(State.PLAY, 0x0E, (conn, in) -> {
+        });
+        server.on(State.PLAY, 0x2B, (conn, in) -> {
+        });
+        server.on(State.PLAY, 0x33, (conn, in) -> {
+        });
 
         // Client Tick End, comes 20 times a second, nothing to do yet
         server.on(State.PLAY, 0x0D, (conn, in) -> {
@@ -94,9 +105,9 @@ public final class PlayHandler {
     }
 
     /** Field order, see 26.3's ClientboundLoginPacket and CommonPlayerSpawnInfo, it does that too so it should work here aswell*/
-    private static void sendLogin(Connection conn, int dimensionType) throws IOException {
-        conn.send(0x32, out -> out
-                .writeInt(1)         // entity id
+    private static void sendLogin(Player player, int dimensionType) throws IOException {
+        player.connection().send(0x32, out -> out
+                .writeInt(player.entityId())         // entity id
                 .writeBoolean(false) // hardcore
                 .writeVarInt(1)      // dimensions on the server
                 .writeString(DIMENSION)

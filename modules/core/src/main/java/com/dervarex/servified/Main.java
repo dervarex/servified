@@ -7,6 +7,7 @@ import com.dervarex.servified.handler.MovementHandler;
 import com.dervarex.servified.handler.PlayHandler;
 import com.dervarex.servified.handler.StatusHandler;
 import com.dervarex.servified.player.Player;
+import com.dervarex.servified.player.PlayerSync;
 import com.dervarex.servified.player.Players;
 import com.dervarex.servified.protocol.PacketServer;
 import com.dervarex.servified.registry.Registries;
@@ -29,6 +30,10 @@ public class Main {
         server.onConnect(conn -> System.out.println("Client connected: " + conn.remoteAddress()));
         server.onDisconnect(conn -> {
             Player player = players.remove(conn);
+
+            if (player != null)
+                PlayerSync.leave(player, players);
+
             System.out.println("Client disconnected: " + (player != null ? player.name() : conn.remoteAddress()));
         });
 
