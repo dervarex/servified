@@ -1,0 +1,15 @@
+worldgen/biome
+damage_type
+painting_variant
+banner_pattern
+enchantment
+instrument
+dialog
+timeline
+block
+item
+fluid
+entity_type
+game_event
+point_of_interest_type
+potion

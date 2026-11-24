@@ -2,6 +2,12 @@ package com.dervarex.servified.handler;
 
 import com.dervarex.servified.protocol.PacketServer;
 import com.dervarex.servified.protocol.State;
+import com.dervarex.servified.registry.Registries;
+import com.dervarex.servified.registry.Tags;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Everything between login and joining is here, that's the configuration
@@ -11,7 +17,11 @@ public final class ConfigurationHandler {
     private ConfigurationHandler() {
     }
 
-    public static void register(PacketServer server) {
+    public static void register(PacketServer server) throws IOException {
+        Registries loaded = Registries.load();
+        Map<String, List<String>> registries = loaded.synced();
+        Map<String, Map<String, int[]>> tags = Tags.load(loaded).all();
+
         // Client Information
         server.on(State.CONFIGURATION, 0x00, (conn, in) -> {
             String locale = in.readString(16);
@@ -38,7 +48,44 @@ public final class ConfigurationHandler {
             for (int i = 0; i < count; i++)
                 System.out.printf("  %s:%s (version %s)%n", in.readString(), in.readString(), in.readString());
 
-            // TODO we can send Registry Data here then :)
+            // Registry Data, one packet per registry, no data since the client has it already
+            for (var registry : registries.entrySet()) {
+                conn.send(0x07, out -> {
+                    out.writeString(registry.getKey()).writeVarInt(registry.getValue().size());
+
+                    for (String entry : registry.getValue())
+                        out.writeString(entry).writeBoolean(false);
+                });
+            }
+
+            System.out.println("Sent " + registries.size() + " registries");
+
+            // Update Tags, registry entries point at tags so the client needs them before it can load anything
+            conn.send(0x0E, out -> {
+                out.writeVarInt(tags.size());
+
+                tags.forEach((registry, byTag) -> {
+                    out.writeString(registry).writeVarInt(byTag.size());
+
+                    byTag.forEach((tag, ids) -> {
+                        out.writeString(tag).writeVarInt(ids.length);
+
+                        for (int id : ids)
+                            out.writeVarInt(id);
+                    });
+                });
+            });
+
+            System.out.println("Sent tags for " + tags.size() + " registries");
+
+            // Finish Configuration
+            conn.send(0x03);
+        });
+
+        // Acknowledge Finish Configuration
+        server.on(State.CONFIGURATION, 0x03, (conn, in) -> {
+            conn.setState(State.PLAY);
+            System.out.println("Switched to PLAY");
         });
     }
 }
