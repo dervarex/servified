@@ -2,6 +2,8 @@ package com.dervarex.servified.world;
 
 import com.dervarex.servified.protocol.PacketOutput;
 
+import java.util.BitSet;
+
 /**
  * A chunk that's air everywhere except one layer of stone sections, real world would be kinda hard :( <br>
  * See 26.3's LevelChunkSection, PalettedContainer and ClientboundLevelChunkWithLightPacket, got some information from there
@@ -65,10 +67,13 @@ public final class FlatChunk {
 
     /** Full sky light everywhere, otherwise everything is black */
     private static void light(PacketOutput out) {
-        out.writeVarInt(1).writeLong((1L << LIGHT_SECTIONS) - 1); // sky light mask, every section
-        out.writeVarInt(0);                                             // block light mask
-        out.writeVarInt(0);                                             // empty sky light mask
-        out.writeVarInt(0);                                             // empty block light mask
+        BitSet everySection = new BitSet();
+        everySection.set(0, LIGHT_SECTIONS);
+
+        out.writeBitSet(everySection);  // sky light mask
+        out.writeBitSet(new BitSet());  // block light mask
+        out.writeBitSet(new BitSet());  // empty sky light mask
+        out.writeBitSet(new BitSet());  // empty block light mask
 
         byte[] fullBright = new byte[2048];
         java.util.Arrays.fill(fullBright, (byte) 0xFF);
