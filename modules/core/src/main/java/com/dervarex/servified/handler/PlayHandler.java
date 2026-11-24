@@ -1,5 +1,7 @@
 package com.dervarex.servified.handler;
 
+import com.dervarex.servified.player.Player;
+import com.dervarex.servified.player.Players;
 import com.dervarex.servified.protocol.Connection;
 import com.dervarex.servified.protocol.PacketServer;
 import com.dervarex.servified.protocol.State;
@@ -18,7 +20,7 @@ public final class PlayHandler {
     private PlayHandler() {
     }
 
-    public static void register(PacketServer server, Registries registries) {
+    public static void register(PacketServer server, Registries registries, Players players) {
         int dimensionType = registries.id("minecraft:dimension_type", DIMENSION);
         FlatChunk chunk = new FlatChunk(registries.id("minecraft:worldgen/biome", "minecraft:plains"));
 
@@ -28,7 +30,7 @@ public final class PlayHandler {
             System.out.println("Switched to PLAY mode");
 
             sendLogin(conn, dimensionType);
-            spawn(conn, chunk);
+            spawn(players.get(conn), chunk);
             startKeepAlive(conn);
         });
 
@@ -47,7 +49,9 @@ public final class PlayHandler {
         });
     }
 
-    private static void spawn(Connection conn, FlatChunk chunk) throws IOException {
+    private static void spawn(Player player, FlatChunk chunk) throws IOException {
+        Connection conn = player.connection();
+
         conn.send(0x27, out -> out.writeByte(13).writeFloat(0));
 
         // Set Center Chunk
@@ -62,9 +66,12 @@ public final class PlayHandler {
         }
 
         // Synchronize Player Position, middle of chunk 0 0 on top of the stone
+        player.setPosition(8.5, FlatChunk.SURFACE_Y, 8.5);
+        player.enteredNewChunk();
+
         conn.send(0x49, out -> out
                 .writeVarInt(1)                                                           // teleport id, the client confirms it
-                .writeDouble(8.5).writeDouble(FlatChunk.SURFACE_Y).writeDouble(8.5)
+                .writeDouble(player.x()).writeDouble(player.y()).writeDouble(player.z())
                 .writeDouble(0).writeDouble(0).writeDouble(0)                 // velocity
                 .writeFloat(0).writeFloat(0)                                        // yaw, pitch
                 .writeInt(0));                                                            // nothing relative, absolute position

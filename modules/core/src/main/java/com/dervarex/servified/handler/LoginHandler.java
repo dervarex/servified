@@ -1,6 +1,8 @@
 package com.dervarex.servified.handler;
 
 import com.dervarex.servified.MinecraftVersion;
+import com.dervarex.servified.player.Player;
+import com.dervarex.servified.player.Players;
 import com.dervarex.servified.protocol.PacketServer;
 import com.dervarex.servified.protocol.State;
 
@@ -14,13 +16,14 @@ public final class LoginHandler {
     private LoginHandler() {
     }
 
-    public static void register(PacketServer server) {
+    public static void register(PacketServer server, Players players) {
         // Login Start
         server.on(State.LOGIN, 0x00, (conn, in) -> {
             String name = in.readString(16);
             UUID uuid = in.readUUID();
 
             System.out.println("Login Start: " + name + " (" + uuid + ")");
+            players.add(new Player(name, uuid, conn));
 
             // Login Success: profile (uuid, name, no properties), then the session id
             conn.send(0x02, out -> out
