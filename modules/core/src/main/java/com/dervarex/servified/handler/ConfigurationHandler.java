@@ -17,8 +17,7 @@ public final class ConfigurationHandler {
     private ConfigurationHandler() {
     }
 
-    public static void register(PacketServer server) throws IOException {
-        Registries loaded = Registries.load();
+    public static void register(PacketServer server, Registries loaded) throws IOException {
         Map<String, List<String>> registries = loaded.synced();
         Map<String, Map<String, int[]>> tags = Tags.load(loaded).all();
 
@@ -80,12 +79,6 @@ public final class ConfigurationHandler {
 
             // Finish Configuration
             conn.send(0x03);
-        });
-
-        // Acknowledge Finish Configuration
-        server.on(State.CONFIGURATION, 0x03, (conn, in) -> {
-            conn.setState(State.PLAY);
-            System.out.println("Switched to PLAY");
         });
     }
 }
