@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
@@ -34,8 +36,13 @@ public final class PacketServer {
     };
     private Consumer<Connection> onDisconnect = conn -> {
     };
-    private UnhandledListener onUnhandled = (conn, id, in) ->
-            System.out.printf("Unhandled %s packet: 0x%02X (%d bytes)%n", conn.state(), id, in.remaining());
+    /** State + packet id combos we already printed, so we don't spam and can see what is still missing implementation */
+    private final Set<String> reportedUnhandled = ConcurrentHashMap.newKeySet();
+
+    private UnhandledListener onUnhandled = (conn, id, in) -> {
+        if (reportedUnhandled.add(conn.state() + ":" + id))
+            System.out.printf("Unhandled %s packet: 0x%02X (%d bytes), you gotta implement that one aswell%n", conn.state(), id, in.remaining());
+    };
 
     public PacketServer(int port) {
         this.port = port;
@@ -57,7 +64,7 @@ public final class PacketServer {
         return this;
     }
 
-    /** Gets called for packets without a handler, by default it just prints them */
+    /** Gets called for packets without a handler, by default it prints every packet id once */
     public PacketServer onUnhandled(UnhandledListener listener) {
         this.onUnhandled = listener;
         return this;
