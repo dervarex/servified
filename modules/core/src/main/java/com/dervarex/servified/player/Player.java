@@ -3,15 +3,21 @@ package com.dervarex.servified.player;
 import com.dervarex.servified.protocol.Connection;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Someone who's logged in, and where they are
  */
 public final class Player {
 
+    private static final AtomicInteger NEXT_ENTITY_ID = new AtomicInteger(1);
+
     private final String name;
     private final UUID uuid;
     private final Connection connection;
+    private final int entityId = NEXT_ENTITY_ID.getAndIncrement();
+
+    private volatile boolean inWorld;
 
     // only the player's own connection thread writes these
     private volatile double x, y, z;
@@ -58,6 +64,18 @@ public final class Player {
         lastChunkX = chunkX();
         lastChunkZ = chunkZ();
         return true;
+    }
+
+    public int entityId() {
+        return entityId;
+    }
+
+    public boolean inWorld() {
+        return inWorld;
+    }
+
+    public void setInWorld(boolean inWorld) {
+        this.inWorld = inWorld;
     }
 
     public String name() {
