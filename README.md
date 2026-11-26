@@ -19,11 +19,42 @@
 
 ## Features
 
-* Uh... exist I guess?
+* Send server info to the client
+* Transmit a Basic Stone Chunk
+* Display other players that joined the Server in 3D, with mostly accurate movements
 
 ## Versions
 **Target:** 26.3
-**Tested:** none
+**Tested:** 26.3
+
+## Running it
+
+1. Requirements
+- JDK 25. Check with java -version if you're not sure.
+- Internet access
+- A Minecraft Java Edition 26.3 Client. (no other version will work, it'll show as incompatible)
+- Git
+
+2. Get the code and build it
+```
+git clone https://github.com/dervarex/servified
+cd servified
+./gradlew build
+```
+On Windows, use gradlew.bat instead of ./gradlew.
+```
+gradlew.bat build
+```
+
+3. Start the Server
+```
+./gradlew :core:run
+```
+
+4. Connect
+4.1 Open Minecraft 26.3
+4.2 Enter localhost as the server address, since you're hosting the server on your machine
+4.3 The Server should show up and be joinable.
 
 ## License
 

@@ -35,6 +35,8 @@ public final class PlayHandler {
             sendLogin(player, dimensionType);
             spawn(player, chunk);
             PlayerSync.join(player, players);
+            sendLogin(conn, dimensionType);
+            spawn(players.get(conn), chunk);
             startKeepAlive(conn);
         });
 
